@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Robot Ludo</title>
+<style>body{margin:0;font-family:sans-serif;background:#0f172a;color:white;text-align:center;padding:10px}
+h2{margin:5px} #dice{font-size:50px;margin:5px} button{padding:12px 20px;border:none;border-radius:10px;background:#22c55e;color:white;font-weight:bold;font-size:16px;margin:5px}
+#board{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;max-width:360px;margin:10px auto}
+.cell{background:#1e293b;border-radius:8px;height:42px;display:flex;align-items:center;justify-content:center;font-size:11px;position:relative}
+.cell.finish{background:#f59e0b;color:black;font-weight:bold}
+.tok{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;border:2px solid white;position:absolute}
+.red{background:#ef4444;top:2px;left:2px}.blue{background:#3b82f6;top:2px;right:2px}
+#msg{background:#1e293b;padding:10px;border-radius:10px;margin:10px}
+</style></head><body>
+<h2>🎲 রোবট লুডো</h2><div>তুমি 🔴 | রোবট 🤖🔵</div>
+<div id="msg">তোমার পালা! ছক্কা মারো</div>
+<div id="dice">🎲</div>
+<button onclick="roll()" id="btn">ছক্কা মারো</button>
+<button onclick="location.reload()" style="background:#64748b">আবার খেলো</button>
+<div id="board"></div>
+<div>তোমার গুটি: <span id="s1">0</span>/40 | রোবট: <span id="s2">0</span>/40</div>
+<script>
+let pos=[0,0,0,0]; let turn=0; let diceVal=0;
+let board=document.getElementById('board');
+for(let i=0;i<40;i++){let d=document.createElement('div');d.className='cell'+(i==39?' finish':'');d.textContent=i==39?'🏁':i+1;board.appendChild(d);}
+function draw(){
+  document.querySelectorAll('.tok').forEach(e=>e.remove());
+  for(let p=0;p<4;p++){
+    if(pos[p]>0 && pos[p]<40){
+      let cell=board.children[pos[p]-1];
+      let t=document.createElement('div');t.className='tok '+(p<2?'red':'blue');t.textContent=p<2?'🔴':'🔵';cell.appendChild(t);
+    }
+  }
+  document.getElementById('s1').textContent=Math.max(pos[0],pos[1]);
+  document.getElementById('s2').textContent=Math.max(pos[2],pos[3]);
+}
+function checkWin(){
+  if(pos[0]>=40 && pos[1]>=40){document.getElementById('msg').textContent='🎉 তুমি জিতেছো! তুমি চ্যাম্পিয়ন!';return true;}
+  if(pos[2]>=40 && pos[3]>=40){document.getElementById('msg').textContent='🤖 রোবট জিতেছে! আবার চেষ্টা করো!';return true;}
+  return false;
+}
+function roll(){
+  if(turn!==0) return;
+  diceVal=Math.floor(Math.random()*6)+1;
+  document.getElementById('dice').textContent=['','⚀','⚁','⚂','⚃','⚄','⚅'][diceVal];
+  let p = pos[0]<40?0:1; if(pos[0]>=40 && pos[1]>=40) p=1;
+  pos[p]+=diceVal; if(pos[p]>40) pos[p]=40;
+  document.getElementById('msg').textContent='তুমি পেয়েছো '+diceVal+'! তোমার গুটি '+pos[p]+' ঘরে';
+  draw(); if(checkWin()) return;
+  turn=1; document.getElementById('btn').disabled=true;
+  setTimeout(robotTurn,1200);
+}
+function robotTurn(){
+  diceVal=Math.floor(Math.random()*6)+1;
+  document.getElementById('dice').textContent=['','⚀','⚁','⚂','⚃','⚄','⚅'][diceVal];
+  let p = pos[2]<40?2:3;
+  pos[p]+=diceVal; if(pos[p]>40) pos[p]=40;
+  document.getElementById('msg').textContent='রোবট পেয়েছে '+diceVal+'! রোবটের গুটি '+pos[p]+' ঘরে';
+  draw(); if(checkWin()) return;
+  turn=0; document.getElementById('btn').disabled=false;
+  document.getElementById('msg').textContent+=' | এখন তোমার পালা!';
+}
+draw();
+</script></body></html>
